@@ -17,9 +17,9 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
 		public function load_admin_assets( $hook ) {
 
 			if ( $hook == 'dashboard_page_search-analytics/admin/includes/class.stats' ) {
-				wp_enqueue_script( 'mwtsa-chart-bundle-script', MWTSAI()->plugin_admin_url . 'assets/js/chart.bundle.min.js', array( 'jquery' ), MWTSAI()->version );
+				wp_enqueue_script( 'mwtsa-chart-bundle-script', MWTSAI()->plugin_admin_url . 'assets/js/chart.bundle.min.js', array( 'jquery' ), MWTSAI()->version, true );
 
-				wp_enqueue_script( 'mwtsa-chart-controller-script', MWTSAI()->plugin_admin_url . 'assets/js/chart-controller.js', array( 'mwtsa-chart-bundle-script' ) );
+				wp_enqueue_script( 'mwtsa-chart-controller-script', MWTSAI()->plugin_admin_url . 'assets/js/chart-controller.js', array( 'mwtsa-chart-bundle-script' ), MWTSAI()->version, true );
 
 				wp_localize_script( 'mwtsa-chart-controller-script', 'mwtsa_chart_obj', array(
 						'ajax_url' => admin_url( 'admin-ajax.php' ),
@@ -35,7 +35,7 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
 		}
 
 		public function render_stats_chart() {
-			if ( empty( $_REQUEST['search-term'] ) && empty ( MWTSA_Options::get_option( 'mwtsa_hide_charts' ) ) ) :
+			if ( empty( $_REQUEST['search-term'] ) && empty ( MWTSA_Options::get_option( 'mwtsa_hide_charts' ) ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$default_line_style = MWTSA_Options::get_option( 'chart_default_line_style' );
 				$default_range = MWTSA_Options::get_option( 'chart_default_range' );
 
@@ -58,14 +58,14 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
                         <label for="chart-type">
                             <select id="chart-type" onchange="loadCharts()">
 								<?php foreach ( $line_options as $value => $label ) : ?>
-                                    <option value="<?php echo $value ?>" <?php selected( $value, $default_line_style ) ?>><?php echo esc_html( $label ) ?></option>
+                                    <option value="<?php echo esc_attr( $value ) ?>" <?php selected( $value, $default_line_style ) ?>><?php echo esc_html( $label ) ?></option>
 								<?php endforeach; ?>
                             </select>
                         </label>
                         <label for="chart-ranges">
                             <select id="chart-ranges" onchange="loadCharts()">
 								<?php foreach ( $range_options as $value => $label ) : ?>
-                                    <option value="<?php echo $value ?>" <?php selected( $value, $default_range ) ?>><?php echo esc_html( $label ) ?></option>
+                                    <option value="<?php echo esc_attr( $value ) ?>" <?php selected( $value, $default_range ) ?>><?php echo esc_html( $label ) ?></option>
 								<?php endforeach; ?>
                             </select>
                         </label>
@@ -80,11 +80,13 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
 		}
 
 		public function render_chart_data() {
-			if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], $this->nonce_action ) ) {
+            $nonce = isset( $_REQUEST['nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ) : '';
+
+			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, $this->nonce_action ) ) {
 				wp_send_json_error( 'Bad Request!' );
 			}
 
-			$ranges = ! empty( $_REQUEST['chart_ranges'] ) ? $_REQUEST['chart_ranges'] : '2w';
+			$ranges = ! empty( $_REQUEST['chart_ranges'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['chart_ranges'] ) ) : '2w';
 
 			switch ( $ranges ) {
 				case '1m':
@@ -123,8 +125,9 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
 		}
 
 		public function save_default_chart_settings() {
+			$nonce = isset( $_REQUEST['nonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ) : '';
 
-			if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], $this->nonce_action ) ) {
+			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, $this->nonce_action ) ) {
 				wp_send_json_error( 'Bad Request!' );
 			}
 
@@ -132,8 +135,8 @@ if ( ! class_exists( 'MWTSA_Admin_Charts' ) ) {
 				wp_send_json_error( 'Bad Request!' );
 			}
 
-			$chart_ranges = $_POST['chart_ranges'];
-			$line_style   = $_POST['line_style'];
+			$chart_ranges = sanitize_text_field( wp_unslash( $_POST['chart_ranges'] ) );
+			$line_style   = sanitize_text_field( wp_unslash( $_POST['line_style'] ) );
 
 			if ( ! in_array( $chart_ranges, array( '1m', '1mc', '2w', '2wc' ) ) ) {
 				wp_send_json_error( 'Bad Request!' );
