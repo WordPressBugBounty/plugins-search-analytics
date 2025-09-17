@@ -126,7 +126,10 @@ if ( ! class_exists( 'MWTSA_Process_Query' ) ) {
 			$exclude_if_contains = MWTSA_Options::get_option( 'mwtsa_exclude_if_string_contains' );
 
 			if ( ! empty( $exclude_if_contains ) ) {
-				$match_against = array_map( 'trim', explode( ',', $exclude_if_contains ) );
+				$match_against = array_map( function ($excluded_string) {
+					$excluded_string = trim( $excluded_string );
+					return preg_quote( $excluded_string, '/' );
+				}, explode( ',', $exclude_if_contains ) );
 
 				preg_match( '/(' . implode( '|', $match_against ) . ')/i', $search_term, $matches );
 

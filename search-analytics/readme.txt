@@ -2,9 +2,9 @@
 Contributors: cornel.raiu
 Tags: search, analytics, statistics, history
 Requires at least: 4.4.0
-Tested up to: 6.6.2
+Tested up to: 6.8.2
 Requires PHP: 5.6
-Stable tag: 1.4.15
+Stable tag: 1.4.16
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -76,7 +76,10 @@ You can use the [Support Forum](https://wordpress.org/support/plugin/search-anal
 Please report security bugs found in the source code of the Search Analytics for WP plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/search-analytics). The Patchstack team will assist you with verification, CVE assignment, and notify me, the developer of Search Analytics for WP.
 
 == Changelog ==
-= 1.4.14 =
+= 1.4.16 =
+* Bugfix: Fix bug related to exclude keywords setting, reported [here](https://wordpress.org/support/topic/there-has-been-a-critical-error-on-this-website-422/). Thank you [@luislu](https://wordpress.org/support/users/luislu/) for the report!
+
+= 1.4.15 =
 * Bugfix: Fix country not being saved, reported [here](https://wordpress.org/support/topic/country-data-unavailable/). Thank you [@mikeeiler](https://wordpress.org/support/users/mikeeiler/) for the report!
 
 = 1.4.14 =
@@ -299,5 +302,5 @@ Please report security bugs found in the source code of the Search Analytics for
 
 == Upgrade Notice ==
 
-= 1.4.15 =
-Fix country not being saved
+= 1.4.16 =
+Fix bug related to exclude keywords setting
